@@ -1,0 +1,54 @@
+#!/usr/bin/env python
+# réalisé par Guendouz elghoul chahrazed / Talbi hadjer chaima
+import socket
+import threading
+
+Host = '127.0.0.1'   
+Port = 4040 
+
+server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)    
+
+server.bind((Host, Port))
+server.listen()   
+
+clients = []
+nom_clients =[]
+
+def broadcast_message(message):
+    for client in clients:
+        client.send(message)
+
+def message_serv(client):
+    while True:
+        try:
+            message = client.recv(1024)   
+            broadcast_message(message) 
+        except:
+            index = clients.index(client)
+            clients.remove(client)
+            client.close()
+            nom_client = nom_clients[index]
+            print(f" {nom_client} deconnecte !".encode('ascii'))
+            noms_clients.remove(nom_client)
+            break
+
+def connection():
+    while True:
+        client, address =server.accept()
+        print(f" {address} connecte \n ")
+        client.send("UserName".encode('ascii'))
+        nom_client =client.recv(1024).decode('ascii')
+
+        nom_clients.append(nom_client)
+        clients.append(client)
+
+        print(f"{nom_client} Connecte \n ")
+        message = f"{nom_client} Connecte \n ".encode('ascii')   
+        broadcast_message(message)       
+
+        client.send("vous etes connecte au serveur".encode('ascii'))
+
+        thread = threading.Thread(target=message_serv, args=(client,))
+        thread.start()
+print("serveur en écoute...")
+connection()

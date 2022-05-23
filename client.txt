@@ -1,0 +1,35 @@
+#!/usr/bin/env python import socket
+# realisé par Guendouz elghoul chahrazed / Talbi hadjer chaima
+import socket
+import threading
+
+Host = '127.0.0.1'   
+Port = 4040
+
+client = socket.socket(socket.AF_INET, socket.SOCK_STREAM) 
+client.connect((Host, Port))
+pseudo= input("Entrer votre nom : ")
+
+def lire_mesg():
+    while True:
+        try:
+            message = client.recv(1204).decode('ascii')    
+            if message =="UserName":
+                client.send(pseudo.encode('ascii'))
+            else:
+                print(message)
+        except:
+            print("il y'a une erreur!")
+            client.close()
+            break
+                
+def ecrit_mesg():
+    while True:
+        message = f"{pseudo}: {input(' ')}"
+        client.send(message.encode("ascii"))     
+
+read_thread = threading.Thread(target=lire_mesg)
+read_thread.start()
+
+write_thread = threading.Thread(target=ecrit_mesg)
+write_thread.start()
